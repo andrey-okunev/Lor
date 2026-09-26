@@ -3,41 +3,43 @@ name: Build Windows EXE
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:  # Позволяет запустить вручную из вкладки Actions
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest  # Виртуальная машина с Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Install WiX Toolset
-        run: choco install wixtoolset --no-progress -y
-
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B clean package --file pom.xml
+
+      - name: Create JavaFX runtime image (jlink)
+        run: mvn -B javafx:jlink --file pom.xml
 
       - name: Build app-image with jpackage
+        shell: pwsh
         run: |
           jpackage --type app-image `
             --name "Lor" `
             --input target `
             --main-jar lor-1.0.0.jar `
             --main-class com.okunev.lor.Main `
-            --dest target/dist `
-            --win-menu --win-shortcut
+            --runtime-image target/app `
+            --dest target/dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: lor-windows
           path: target/dist/
+          if-no-files-found: error
