@@ -34,7 +34,7 @@ jobs:
             --input target `
             --main-jar lor-1.0.0.jar `
             --main-class com.okunev.lor.Main `
-            --runtime-image target/app `
+            --runtime-image target/image `
             --dest target/dist
 
       - name: Upload artifact
