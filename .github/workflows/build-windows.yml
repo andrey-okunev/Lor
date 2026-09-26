@@ -26,6 +26,20 @@ jobs:
       - name: Create JavaFX runtime image (jlink)
         run: mvn -B javafx:jlink --file pom.xml
 
+      - name: Verify jlink output
+        shell: pwsh
+        run: |
+          Write-Host "=== Checking target/app ==="
+          if (Test-Path target/app) {
+            Write-Host "OK: target/app exists"
+            Get-ChildItem target/app
+          } else {
+            Write-Host "FAIL: target/app does NOT exist"
+            Write-Host "=== Contents of target ==="
+            Get-ChildItem target
+            exit 1
+          }
+
       - name: Build app-image with jpackage
         shell: pwsh
         run: |
@@ -34,7 +48,7 @@ jobs:
             --input target `
             --main-jar lor-1.0.0.jar `
             --main-class com.okunev.lor.Main `
-            --runtime-image target/image `
+            --runtime-image target/app `
             --dest target/dist
 
       - name: Upload artifact
