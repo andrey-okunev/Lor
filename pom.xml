@@ -78,6 +78,11 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.okunev.lor.Main</mainClass>
+                    <launcher>lor</launcher>
+                    <jlinkImageName>app</jlinkImageName>
+                    <noManPages>true</noManPages>
+                    <stripDebug>true</stripDebug>
+                    <noHeaderFiles>true</noHeaderFiles>
                 </configuration>
             </plugin>
         </plugins>
