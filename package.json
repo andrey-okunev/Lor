@@ -6,8 +6,12 @@
   },
   "jdeploy": {
     "jar": "target/lor-1.0.0.jar",
-    "mainClass": "com.okunev.lor.Main",
     "title": "Медицинские протоколы",
-    "javafx": true
+    "javafx": true,
+    "commands": {
+      "lor": {
+        "mainClass": "com.okunev.lor.Main"
+      }
+    }
   }
 }
