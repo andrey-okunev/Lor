@@ -60,3 +60,4 @@ jobs:
         with:
           github_token: ${{ secrets.JDEPLOY_TOKEN }}
           target_repository: andrey-okunev/Lor-releases
+          jdeploy_version: 5.4.3
