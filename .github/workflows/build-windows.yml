@@ -53,5 +53,5 @@ jobs:
       - name: Build Installer Bundles with jDeploy
         uses: shannah/jdeploy@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.JDEPLOY_TOKEN }}
           target_repository: andrey-okunev/Lor-releases
