@@ -1,13 +1,12 @@
 {
   "name": "lor",
   "version": "1.0.0",
-  "description": "Медицинские протоколы",
   "bin": {
     "lor": "jdeploy-bundle/jdeploy.js"
   },
-  "mainClass": "com.okunev.lor.Main",
   "jdeploy": {
     "jar": "target/lor-1.0.0.jar",
+    "mainClass": "com.okunev.lor.Main",
     "title": "Медицинские протоколы",
     "javafx": true
   }
