@@ -7,6 +7,8 @@ module com.okunev.lor {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
 
+    requires java.desktop;
+
     opens com.okunev.lor to javafx.fxml, javafx.graphics;
     opens com.okunev.lor.model to com.fasterxml.jackson.databind;
 

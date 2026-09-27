@@ -276,6 +276,45 @@
     -fx-padding: 2 0 2 0;
 }
 
+.context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d9dfec;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+}
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 6 14;
+}
+.context-menu .menu-item .label {
+    -fx-text-fill: #23304d;
+    -fx-font-size: 13px;
+}
+.context-menu .menu-item:focused {
+    -fx-background-color: #dbe6ff;
+}
+.context-menu .menu-item:focused .label {
+    -fx-text-fill: #16233f;
+}
+
+.open-pdf-button {
+    -fx-background-color: #eef2fb;
+    -fx-text-fill: #2b3a5c;
+    -fx-font-size: 12px;
+    -fx-padding: 5 12;
+    -fx-background-radius: 6;
+    -fx-border-color: #d9dfec;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+.open-pdf-button:hover {
+    -fx-background-color: #dde5f8;
+    -fx-border-color: #b9c6e0;
+}
+
 .section-diag       { -fx-border-color: transparent transparent transparent #4a7dfc; -fx-border-width: 0 0 0 4; }
 .section-diag-extra { -fx-border-color: transparent transparent transparent #6b52d8; -fx-border-width: 0 0 0 4; }
 .section-treatment  { -fx-border-color: transparent transparent transparent #2fa878; -fx-border-width: 0 0 0 4; }

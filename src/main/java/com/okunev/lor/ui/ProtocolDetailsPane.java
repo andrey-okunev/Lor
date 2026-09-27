@@ -1,10 +1,12 @@
 package com.okunev.lor.ui;
 
 import com.okunev.lor.model.Protocol;
+import com.okunev.lor.service.PdfService;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
@@ -22,6 +24,8 @@ public class ProtocolDetailsPane extends ScrollPane {
     private final VBox content = new VBox(16);
     private final Label title = new Label("Выберите протокол слева");
     private final VBox sections = new VBox(14);
+
+    private final PdfService pdfService = new PdfService();
 
     public ProtocolDetailsPane() {
         title.getStyleClass().add("detail-title");
@@ -87,34 +91,6 @@ public class ProtocolDetailsPane extends ScrollPane {
         setVvalue(0);
     }
 
-    /**
-     * Секция с заголовком и кнопкой копирования, но без содержимого.
-     * Используется, чтобы показать, что раздел существует, но скрыть данные.
-     */
-    private void addHiddenSection(String header, String styleClass) {
-        Label headerLabel = new Label(header);
-        headerLabel.getStyleClass().add("section-header");
-        headerLabel.setMinHeight(Region.USE_PREF_SIZE);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        HBox headerRow = new HBox(8, headerLabel, spacer);
-        headerRow.setAlignment(Pos.CENTER_LEFT);
-        headerRow.setMinHeight(Region.USE_PREF_SIZE);
-
-        Label placeholder = new Label("Содержимое скрыто");
-        placeholder.getStyleClass().add("section-hidden-placeholder");
-        placeholder.setMaxWidth(Double.MAX_VALUE);
-
-        VBox box = new VBox(8, headerRow, placeholder);
-        box.getStyleClass().addAll("section-card", "section-hidden", styleClass);
-        box.setMaxWidth(Double.MAX_VALUE);
-        box.setMinHeight(Region.USE_PREF_SIZE);
-        box.setFillWidth(true);
-        sections.getChildren().add(box);
-    }
-
     // ==================== META ====================
 
     private void addMetaBlock(Protocol p) {
@@ -154,7 +130,6 @@ public class ProtocolDetailsPane extends ScrollPane {
         headerLabel.getStyleClass().add("section-header");
         headerLabel.setMinHeight(Region.USE_PREF_SIZE);
 
-        // === Кнопка копирования в шапке секции ===
         Button copyBtn = createCopyButton(value);
 
         Region spacer = new Region();
@@ -175,8 +150,36 @@ public class ProtocolDetailsPane extends ScrollPane {
     }
 
     /**
-     * Создаёт кнопку «Копировать», которая копирует переданный текст
-     * в системный буфер и на секунду показывает «Скопировано».
+     * Секция с заголовком, но без содержимого.
+     * Показывает, что раздел существует, но данные скрыты.
+     */
+    private void addHiddenSection(String header, String styleClass) {
+        Label headerLabel = new Label(header);
+        headerLabel.getStyleClass().add("section-header");
+        headerLabel.setMinHeight(Region.USE_PREF_SIZE);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox headerRow = new HBox(8, headerLabel, spacer);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        headerRow.setMinHeight(Region.USE_PREF_SIZE);
+
+        Label placeholder = new Label("Содержимое скрыто");
+        placeholder.getStyleClass().add("section-hidden-placeholder");
+        placeholder.setMaxWidth(Double.MAX_VALUE);
+
+        VBox box = new VBox(8, headerRow, placeholder);
+        box.getStyleClass().addAll("section-card", "section-hidden", styleClass);
+        box.setMaxWidth(Double.MAX_VALUE);
+        box.setMinHeight(Region.USE_PREF_SIZE);
+        box.setFillWidth(true);
+        sections.getChildren().add(box);
+    }
+
+    /**
+     * Кнопка «Копировать» — копирует переданный текст в системный буфер,
+     * на секунду показывает «Скопировано», затем возвращает исходный текст.
      */
     private Button createCopyButton(String textToCopy) {
         Button btn = new Button("Копировать");
@@ -262,7 +265,20 @@ public class ProtocolDetailsPane extends ScrollPane {
         bodyLabel.setPrefHeight(Region.USE_COMPUTED_SIZE);
         bodyLabel.getStyleClass().add("section-body");
 
-        VBox box = new VBox(8, headerRow, bodyLabel);
+        // ===== Кнопка «Открыть PDF» =====
+        Button openPdfBtn = new Button("📄 Открыть PDF");
+        openPdfBtn.getStyleClass().add("open-pdf-button");
+        openPdfBtn.setOnAction(e -> {
+            try {
+                pdfService.openPdf(p.getFile(), p.getPage() == null ? 1 : p.getPage());
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        "Не удалось открыть PDF:\n" + ex.getMessage());
+                alert.showAndWait();
+            }
+        });
+
+        VBox box = new VBox(8, headerRow, bodyLabel, openPdfBtn);
         box.getStyleClass().addAll("section-card", "section-source");
         box.setMaxWidth(Double.MAX_VALUE);
         box.setMinHeight(Region.USE_PREF_SIZE);

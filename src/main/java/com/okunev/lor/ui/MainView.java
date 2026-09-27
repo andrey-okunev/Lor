@@ -2,17 +2,21 @@ package com.okunev.lor.ui;
 
 import com.okunev.lor.model.Protocol;
 import com.okunev.lor.service.ProtocolService;
+import com.okunev.lor.service.SuggestionService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 
 import java.util.List;
+import java.util.Set;
 
 public class MainView extends BorderPane {
 
@@ -27,6 +31,11 @@ public class MainView extends BorderPane {
     private final ComboBox<String> sectionFilter = new ComboBox<>();
     private final ToggleButton themeToggle = new ToggleButton("🌙 Тёмная");
 
+    // ===== Автодополнение =====
+    private final SuggestionService suggestionService = new SuggestionService();
+    private final ContextMenu suggestionsPopup = new ContextMenu();
+    private Set<String> allSuggestions;
+
     private boolean darkMode = false;
 
     public MainView() {
@@ -34,6 +43,9 @@ public class MainView extends BorderPane {
         List<Protocol> protocols = service.loadProtocols();
         allProtocols = FXCollections.observableArrayList(protocols);
         filteredProtocols = new FilteredList<>(allProtocols, p -> true);
+
+        // Собираем словарь подсказок один раз
+        allSuggestions = suggestionService.buildSuggestions(protocols);
 
         setupFilters();
         setupTable();
@@ -114,15 +126,69 @@ public class MainView extends BorderPane {
         searchField.textProperty().addListener((o, a, b) -> {
             applyFilters();
             updateCountLabel();
+            showSuggestions(b);
         });
+
         populationFilter.valueProperty().addListener((o, a, b) -> {
             applyFilters();
             updateCountLabel();
         });
+
         sectionFilter.valueProperty().addListener((o, a, b) -> {
             applyFilters();
             updateCountLabel();
         });
+
+        // Скрываем подсказки при потере фокуса
+        searchField.focusedProperty().addListener((o, a, focused) -> {
+            if (!focused) suggestionsPopup.hide();
+        });
+
+        // Навигация с клавиатуры
+        searchField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN) {
+                if (!suggestionsPopup.isShowing() && !searchField.getText().isBlank()) {
+                    showSuggestions(searchField.getText());
+                }
+                if (suggestionsPopup.isShowing()) {
+                    suggestionsPopup.requestFocus();
+                    e.consume();
+                }
+            } else if (e.getCode() == KeyCode.ESCAPE) {
+                suggestionsPopup.hide();
+                searchField.clear();
+            }
+        });
+    }
+
+    private void showSuggestions(String input) {
+        if (input == null || input.isBlank() || input.length() < 2) {
+            suggestionsPopup.hide();
+            return;
+        }
+
+        List<String> matches = suggestionService.filter(allSuggestions, input, 8);
+
+        if (matches.isEmpty()) {
+            suggestionsPopup.hide();
+            return;
+        }
+
+        suggestionsPopup.getItems().clear();
+        for (String match : matches) {
+            MenuItem item = new MenuItem(match);
+            item.setOnAction(e -> {
+                searchField.setText(match);
+                searchField.positionCaret(match.length());
+                suggestionsPopup.hide();
+                searchField.requestFocus();
+            });
+            suggestionsPopup.getItems().add(item);
+        }
+
+        if (!suggestionsPopup.isShowing()) {
+            suggestionsPopup.show(searchField, Side.BOTTOM, 0, 0);
+        }
     }
 
     private void applyFilters() {
@@ -133,7 +199,6 @@ public class MainView extends BorderPane {
         filteredProtocols.setPredicate(p -> {
             if (!search.isEmpty()) {
                 boolean match = contains(p.getName(), search)
-                        || contains(p.getTreatment(), search)
                         || contains(p.getDiagRequired(), search)
                         || contains(p.getDiagExtra(), search);
                 if (!match) return false;
@@ -159,7 +224,6 @@ public class MainView extends BorderPane {
     // ================== TABLE ==================
 
     private void setupTable() {
-        // Колонка "№"
         TableColumn<Protocol, String> numCol = new TableColumn<>("№");
         numCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNum()));
         numCol.setPrefWidth(56);
@@ -167,7 +231,6 @@ public class MainView extends BorderPane {
         numCol.setMaxWidth(56);
         numCol.setStyle("-fx-alignment: CENTER;");
 
-        // Колонка "Название" — с переносом
         TableColumn<Protocol, String> nameCol = new TableColumn<>("Название");
         nameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
         nameCol.setMinWidth(300);
@@ -179,19 +242,14 @@ public class MainView extends BorderPane {
         table.getStyleClass().add("protocols-table");
         table.setPlaceholder(new Label("Ничего не найдено"));
 
-        // Переменная высота строк для переноса
         table.setFixedCellSize(-1);
 
-        // Пересчитываем высоту при изменении ширины колонки
         nameCol.widthProperty().addListener((o, a, b) -> table.refresh());
 
         table.getSelectionModel().selectedItemProperty().addListener(
                 (obs, o, n) -> detailsPane.show(n));
     }
 
-    /**
-     * Ячейка с корректным переносом длинного текста и авто-высотой строки.
-     */
     private static class WrappingCell extends TableCell<Protocol, String> {
 
         private final Label label = new Label();
