@@ -151,7 +151,6 @@ public class ProtocolDetailsPane extends ScrollPane {
 
     /**
      * Секция с заголовком, но без содержимого.
-     * Показывает, что раздел существует, но данные скрыты.
      */
     private void addHiddenSection(String header, String styleClass) {
         Label headerLabel = new Label(header);
@@ -178,8 +177,7 @@ public class ProtocolDetailsPane extends ScrollPane {
     }
 
     /**
-     * Кнопка «Копировать» — копирует переданный текст в системный буфер,
-     * на секунду показывает «Скопировано», затем возвращает исходный текст.
+     * Кнопка «Копировать» с визуальным откликом.
      */
     private Button createCopyButton(String textToCopy) {
         Button btn = new Button("Копировать");
@@ -244,18 +242,17 @@ public class ProtocolDetailsPane extends ScrollPane {
         headerLabel.getStyleClass().add("section-header");
         headerLabel.setMinHeight(Region.USE_PREF_SIZE);
 
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox headerRow = new HBox(8, headerLabel, spacer);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        headerRow.setMinHeight(Region.USE_PREF_SIZE);
+
         String text = p.getFile();
         if (p.getPage() != null) {
             text += "  •  стр. " + p.getPage();
         }
-
-        Button copyBtn = createCopyButton(text);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        HBox headerRow = new HBox(8, headerLabel, spacer, copyBtn);
-        headerRow.setAlignment(Pos.CENTER_LEFT);
-        headerRow.setMinHeight(Region.USE_PREF_SIZE);
 
         Label bodyLabel = new Label(text);
         bodyLabel.setWrapText(true);
@@ -265,7 +262,6 @@ public class ProtocolDetailsPane extends ScrollPane {
         bodyLabel.setPrefHeight(Region.USE_COMPUTED_SIZE);
         bodyLabel.getStyleClass().add("section-body");
 
-        // ===== Кнопка «Открыть PDF» =====
         Button openPdfBtn = new Button("📄 Открыть PDF");
         openPdfBtn.getStyleClass().add("open-pdf-button");
         openPdfBtn.setOnAction(e -> {

@@ -44,7 +44,6 @@ public class MainView extends BorderPane {
         allProtocols = FXCollections.observableArrayList(protocols);
         filteredProtocols = new FilteredList<>(allProtocols, p -> true);
 
-        // Собираем словарь подсказок один раз
         allSuggestions = suggestionService.buildSuggestions(protocols);
 
         setupFilters();
@@ -139,12 +138,10 @@ public class MainView extends BorderPane {
             updateCountLabel();
         });
 
-        // Скрываем подсказки при потере фокуса
         searchField.focusedProperty().addListener((o, a, focused) -> {
             if (!focused) suggestionsPopup.hide();
         });
 
-        // Навигация с клавиатуры
         searchField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.DOWN) {
                 if (!suggestionsPopup.isShowing() && !searchField.getText().isBlank()) {

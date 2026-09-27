@@ -16,6 +16,7 @@
 .title-bar {
     -fx-padding: 18 24 12 24;
 }
+
 .copy-button {
     -fx-background-color: transparent;
     -fx-text-fill: #97a2ba;
@@ -112,8 +113,12 @@
     -fx-padding: 0;
 }
 .main-split > .split-pane-divider {
-    -fx-background-color: #232a3a;
+    -fx-background-color: transparent;
     -fx-padding: 0 1 0 1;
+    -fx-background-insets: 0;
+}
+.main-split > .split-pane-divider:hover {
+    -fx-background-color: rgba(90, 139, 255, 0.3);
 }
 
 /* ==================== TABLE ==================== */

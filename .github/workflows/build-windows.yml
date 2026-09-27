@@ -49,3 +49,9 @@ jobs:
           name: lor-windows
           path: target/dist/
           if-no-files-found: error
+
+      - name: Build Installer Bundles with jDeploy
+        uses: shannah/jdeploy@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          target_repository: andrey-okunev/Lor-releases

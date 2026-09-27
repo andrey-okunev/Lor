@@ -113,8 +113,12 @@
     -fx-padding: 0;
 }
 .main-split > .split-pane-divider {
-    -fx-background-color: #e2e6ee;
+    -fx-background-color: transparent;
     -fx-padding: 0 1 0 1;
+    -fx-background-insets: 0;
+}
+.main-split > .split-pane-divider:hover {
+    -fx-background-color: rgba(90, 139, 255, 0.3);
 }
 
 /* ==================== TABLE ==================== */
