@@ -49,4 +49,6 @@ apple.p12
 sparkle.key
 windows.key
 windows.crt
-gpg.key
+gpg.key# Conveyor build output
+output/
+.conveyor/
