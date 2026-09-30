@@ -37,3 +37,16 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+# Conveyor signing keys — NEVER commit
+*.key
+*.p12
+*.crt
+*.asc
+signing-key.json
+apple.p12
+sparkle.key
+windows.key
+windows.crt
+gpg.key

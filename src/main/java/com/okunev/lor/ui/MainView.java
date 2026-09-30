@@ -27,6 +27,7 @@ public class MainView extends BorderPane {
     private final Label countLabel = new Label();
 
     private final TextField searchField = new TextField();
+    private final Button clearSearchButton = new Button("✕");
     private final ComboBox<String> populationFilter = new ComboBox<>();
     private final ComboBox<String> sectionFilter = new ComboBox<>();
     private final ToggleButton themeToggle = new ToggleButton("🌙 Тёмная");
@@ -82,9 +83,7 @@ public class MainView extends BorderPane {
     }
 
     private HBox createFilterBar() {
-        searchField.setPromptText("🔍 Поиск по названию, лечению, диагностике...");
-        searchField.setPrefWidth(420);
-        searchField.getStyleClass().add("search-field");
+        Region searchBox = createSearchBox();
 
         populationFilter.getItems().addAll("Все", "взрослые", "дети");
         populationFilter.setValue("Все");
@@ -101,13 +100,47 @@ public class MainView extends BorderPane {
         sectionLabel.getStyleClass().add("filter-label");
 
         HBox bar = new HBox(12,
-                searchField,
+                searchBox,
                 populationLabel, populationFilter,
                 sectionLabel, sectionFilter
         );
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(12, 24, 14, 24));
         return bar;
+    }
+
+    /**
+     * Поле поиска с кнопкой «стереть», которая появляется при вводе текста.
+     */
+    private Region createSearchBox() {
+        searchField.setPromptText("🔍 Поиск по названию, лечению, диагностике...");
+        searchField.getStyleClass().add("search-field");
+        searchField.setPrefWidth(420);
+
+        clearSearchButton.getStyleClass().add("clear-search-button");
+        clearSearchButton.setFocusTraversable(false);
+        clearSearchButton.setVisible(false);
+        clearSearchButton.setManaged(false);
+
+        clearSearchButton.setOnAction(e -> {
+            searchField.clear();
+            searchField.requestFocus();
+        });
+
+        // Показываем кнопку только когда есть хотя бы 1 символ
+        searchField.textProperty().addListener((o, a, b) -> {
+            boolean hasText = b != null && !b.isEmpty();
+            clearSearchButton.setVisible(hasText);
+            clearSearchButton.setManaged(hasText);
+        });
+
+        StackPane box = new StackPane(searchField, clearSearchButton);
+        StackPane.setAlignment(clearSearchButton, Pos.CENTER_RIGHT);
+        StackPane.setMargin(clearSearchButton, new Insets(0, 6, 0, 0));
+        box.setPrefWidth(420);
+        box.setMaxWidth(420);
+        box.getStyleClass().add("search-box");
+        return box;
     }
 
     // ================== BODY ==================

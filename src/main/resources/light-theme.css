@@ -107,6 +107,26 @@
     -fx-background-color: #eef2fb;
 }
 
+/* Кнопка «стереть» в поле поиска */
+.clear-search-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-text-fill: #888;
+    -fx-font-size: 12px;
+    -fx-padding: 2 8 2 8;
+    -fx-cursor: hand;
+}
+
+.clear-search-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.08);
+    -fx-text-fill: #222;
+}
+
+/* Отступ справа, чтобы текст не заезжал под кнопку */
+.search-field {
+    -fx-padding: 8 32 8 12;
+}
+
 /* ==================== SPLIT ==================== */
 .main-split {
     -fx-background-color: transparent;
@@ -318,6 +338,8 @@
     -fx-background-color: #dde5f8;
     -fx-border-color: #b9c6e0;
 }
+
+
 
 .section-diag       { -fx-border-color: transparent transparent transparent #4a7dfc; -fx-border-width: 0 0 0 4; }
 .section-diag-extra { -fx-border-color: transparent transparent transparent #6b52d8; -fx-border-width: 0 0 0 4; }
