@@ -14,7 +14,6 @@ public class Main extends Application {
         Font.loadFont(getClass().getResourceAsStream("/fonts/Inter-Regular.otf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/fonts/Inter-Bold.otf"), 14);
 
-
         MainView root = new MainView();
 
         Scene scene = new Scene(root, 1280, 800);

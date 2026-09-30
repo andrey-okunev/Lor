@@ -5,48 +5,41 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-concurrency:
-  group: jdeploy-publish
-  cancel-in-progress: false
-
-
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build with Maven
-        run: mvn -B clean package --file pom.xml
+      - name: Build with Maven + jlink
+        run: mvn -B clean package javafx:jlink --file pom.xml
 
-      - name: Create JavaFX runtime image (jlink)
-        run: mvn -B javafx:jlink --file pom.xml
-
-      - name: Prepare jpackage input
+      - name: Show jlink output (debug)
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path target\jpackage-input
-          Copy-Item target\lor-1.0.0.jar target\jpackage-input\
+          Write-Host "=== target\app ==="
+          if (Test-Path target\app) { Get-ChildItem -Recurse target\app | Select-Object FullName }
+          Write-Host "=== target\app\mods ==="
+          if (Test-Path target\app\mods) { Get-ChildItem target\app\mods }
 
       - name: Build app-image with jpackage
         shell: pwsh
         run: |
           jpackage --type app-image `
             --name "Lor" `
-            --input target\jpackage-input `
-            --main-jar lor-1.0.0.jar `
-            --main-class com.okunev.lor.Main `
-            --runtime-image target\app `
-            --dest target\dist
+            --module-path "target\app\mods" `
+            --module "com.okunev.lor/com.okunev.lor.Main" `
+            --runtime-image "target\app" `
+            --dest "target\dist"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -54,10 +47,3 @@ jobs:
           name: lor-windows
           path: target/dist/
           if-no-files-found: error
-
-      - name: Build Installer Bundles with jDeploy
-        uses: shannah/jdeploy@master
-        with:
-          github_token: ${{ secrets.JDEPLOY_TOKEN }}
-          target_repository: andrey-okunev/Lor-releases
-          jdeploy_version: 5.4.3
