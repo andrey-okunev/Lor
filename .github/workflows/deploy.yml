@@ -21,8 +21,10 @@ jobs:
         run: mvn -B clean package
 
       - name: Run Conveyor
-        uses: hydraulic-software/conveyor/actions/build@v9.1
+        uses: hydraulic-software/conveyor/actions/build@v22.3
         with:
           command: make site
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
+          conveyor_version: '22.3'
+          cache_key: conveyor-v22
