@@ -23,14 +23,25 @@ jobs:
       - name: Build + jlink runtime image
         run: mvn -B clean package javafx:jlink --file pom.xml
 
-      - name: Zip jlink image
+      - name: Prepare module path for jpackage
         shell: pwsh
         run: |
-          Compress-Archive -Path target\app\* -DestinationPath target\Lor-windows.zip
+          New-Item -ItemType Directory -Force -Path target\mods
+          Copy-Item target\lor-1.0.0.jar target\mods\
+
+      - name: Build EXE with jpackage
+        shell: pwsh
+        run: |
+          jpackage --type app-image `
+            --name "Lor" `
+            --module-path "target\mods" `
+            --module "com.okunev.lor/com.okunev.lor.Main" `
+            --runtime-image "target\app" `
+            --dest "target\dist"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: lor-windows
-          path: target/Lor-windows.zip
+          path: target/dist/
           if-no-files-found: error
