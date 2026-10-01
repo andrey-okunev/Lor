@@ -6,7 +6,7 @@
 
     <groupId>com.okunev</groupId>
     <artifactId>lor</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.51</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -98,5 +98,21 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>version.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
     </build>
 </project>

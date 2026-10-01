@@ -1,5 +1,6 @@
 package com.okunev.lor.ui;
 
+import com.okunev.lor.AppVersion;
 import com.okunev.lor.model.Protocol;
 import com.okunev.lor.service.ProtocolService;
 import com.okunev.lor.service.SuggestionService;
@@ -64,13 +65,19 @@ public class MainView extends BorderPane {
 
         countLabel.getStyleClass().add("app-subtitle");
 
+        Button aboutButton = new Button("ℹ " + AppVersion.get());
+        aboutButton.getStyleClass().add("toolbar-button");
+        aboutButton.setFocusTraversable(false);
+        aboutButton.setOnAction(e -> showAboutDialog());
+
         themeToggle.getStyleClass().add("toolbar-button");
         themeToggle.setOnAction(e -> toggleTheme());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox titleBar = new HBox(12, appTitle, countLabel, spacer, themeToggle);
+        HBox titleBar = new HBox(12, appTitle, countLabel, spacer,
+                aboutButton, themeToggle);
         titleBar.setAlignment(Pos.CENTER_LEFT);
         titleBar.getStyleClass().add("title-bar");
 
@@ -80,6 +87,25 @@ public class MainView extends BorderPane {
         VBox header = new VBox(titleBar, filters);
         header.getStyleClass().add("header");
         return header;
+    }
+
+    /**
+     * Диалог «О программе».
+     */
+    private void showAboutDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("О программе");
+        alert.setHeaderText(AppVersion.getName());
+
+        String text = "Версия: " + AppVersion.get()
+                + "\nJava: " + System.getProperty("java.version")
+                + "\nОС: " + System.getProperty("os.name")
+                + " " + System.getProperty("os.version")
+                + " (" + System.getProperty("os.arch") + ")";
+
+        alert.setContentText(text);
+        alert.initOwner(getScene() != null ? getScene().getWindow() : null);
+        alert.showAndWait();
     }
 
     private HBox createFilterBar() {
