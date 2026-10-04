@@ -336,6 +336,11 @@
     -fx-background-color: #2d3548;
     -fx-border-color: #3d4a68;
 }
+.section-subheader {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #7fb3e0;
+}
 
 .section-diag       { -fx-border-color: transparent transparent transparent #5a8bff; -fx-border-width: 0 0 0 4; }
 .section-diag-extra { -fx-border-color: transparent transparent transparent #7a60e3; -fx-border-width: 0 0 0 4; }

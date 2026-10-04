@@ -83,7 +83,7 @@ public class ProtocolDetailsPane extends ScrollPane {
         addMetaBlock(p);
         addSection("Обязательная диагностика", p.getDiagRequired(), "section-diag");
         addSection("Дополнительная диагностика", p.getDiagExtra(), "section-diag-extra");
-        addHiddenSection("Лечение", "section-treatment");
+        addSection("Лечение", p.getTreatment(), "section-treatment");   // ← было addHiddenSection
         addSection("Примечания", p.getNotes(), "section-notes");
         addSection("Длительность", p.getDuration(), "section-duration");
         addSourceBlock(p);
@@ -203,18 +203,59 @@ public class ProtocolDetailsPane extends ScrollPane {
         body.setMaxWidth(Double.MAX_VALUE);
         body.setMinHeight(Region.USE_PREF_SIZE);
 
-        String trimmed = value.trim();
-        String[] parts = splitNumberedList(trimmed);
-
-        if (parts.length > 1) {
-            for (String part : parts) {
-                body.getChildren().add(bulletLabel("• " + part.trim()));
+        String[] lines = value.split("\n");
+        for (String raw : lines) {
+            String line = raw.stripTrailing();
+            if (line.isBlank()) {
+                Region spacer = new Region();
+                spacer.setMinHeight(6);
+                body.getChildren().add(spacer);
+                continue;
             }
-        } else {
-            body.getChildren().add(bulletLabel(trimmed));
+
+            // Подзаголовок: "### Заголовок"
+            if (line.startsWith("### ")) {
+                Label h = new Label(line.substring(4));
+                h.setWrapText(true);
+                h.setMaxWidth(Double.MAX_VALUE);
+                h.getStyleClass().add("section-subheader");
+                VBox.setMargin(h, new Insets(10, 0, 2, 0));
+                body.getChildren().add(h);
+                continue;
+            }
+
+            // Пункт списка: "- текст"
+            if (line.startsWith("- ")) {
+                body.getChildren().add(bulletLabel("• " + line.substring(2).trim(), 0));
+                continue;
+            }
+
+            // Подпункт: "  - текст"
+            if (line.startsWith("  - ")) {
+                body.getChildren().add(bulletLabel("◦ " + line.substring(4).trim(), 16));
+                continue;
+            }
+
+            // Обычный абзац
+            Label p = bulletLabel(line.trim(), 0);
+            body.getChildren().add(p);
         }
 
         return body;
+    }
+
+    private Label bulletLabel(String text, double leftIndent) {
+        Label l = new Label(text);
+        l.setWrapText(true);
+        l.setMaxWidth(Double.MAX_VALUE);
+        l.setMinWidth(0);
+        l.setMinHeight(Region.USE_PREF_SIZE);
+        l.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        l.getStyleClass().add("section-body");
+        if (leftIndent > 0) {
+            VBox.setMargin(l, new Insets(0, 0, 0, leftIndent));
+        }
+        return l;
     }
 
     private Label bulletLabel(String text) {

@@ -6,7 +6,7 @@
 
     <groupId>com.okunev</groupId>
     <artifactId>lor</artifactId>
-    <version>1.0.51</version>
+    <version>1.0.6</version>
     <packaging>jar</packaging>
 
     <properties>

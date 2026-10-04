@@ -338,6 +338,11 @@
     -fx-background-color: #dde5f8;
     -fx-border-color: #b9c6e0;
 }
+.section-subheader {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1a4a7a;
+}
 
 
 
