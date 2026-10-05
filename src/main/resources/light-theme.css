@@ -361,6 +361,12 @@
     -fx-wrap-text: true;
 }
 
+.md-h1 { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #16233f; -fx-padding: 6 0 2 0; }
+.md-h2 { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1c2b4a; -fx-padding: 6 0 2 0; }
+.md-h3 { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b3a5c; -fx-padding: 4 0 2 0; }
+.md-bold   { -fx-font-weight: bold; }
+.md-italic { -fx-font-style: italic; }
+
 
 
 .section-diag       { -fx-border-color: transparent transparent transparent #4a7dfc; -fx-border-width: 0 0 0 4; }

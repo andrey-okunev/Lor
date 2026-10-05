@@ -217,22 +217,7 @@ public class ProtocolDetailsPane extends ScrollPane {
     }
 
     private VBox buildBody(String value) {
-        VBox body = new VBox(6);
-        body.setMaxWidth(Double.MAX_VALUE);
-        body.setMinHeight(Region.USE_PREF_SIZE);
-
-        String trimmed = value.trim();
-        String[] parts = splitNumberedList(trimmed);
-
-        if (parts.length > 1) {
-            for (String part : parts) {
-                body.getChildren().add(bulletLabel("• " + part.trim()));
-            }
-        } else {
-            body.getChildren().add(bulletLabel(trimmed));
-        }
-
-        return body;
+        return MarkdownRenderer.render(value);
     }
 
     private Label bulletLabel(String text) {
