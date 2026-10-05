@@ -342,6 +342,23 @@
     -fx-text-fill: #7fb3e0;
 }
 
+.whats-new-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e9eefc;
+}
+.whats-new-version {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #8c96ad;
+    -fx-padding: 0 0 4 0;
+}
+.whats-new-item {
+    -fx-font-size: 14px;
+    -fx-text-fill: #d3dbef;
+    -fx-wrap-text: true;
+}
+
 .section-diag       { -fx-border-color: transparent transparent transparent #5a8bff; -fx-border-width: 0 0 0 4; }
 .section-diag-extra { -fx-border-color: transparent transparent transparent #7a60e3; -fx-border-width: 0 0 0 4; }
 .section-treatment  { -fx-border-color: transparent transparent transparent #35bf88; -fx-border-width: 0 0 0 4; }

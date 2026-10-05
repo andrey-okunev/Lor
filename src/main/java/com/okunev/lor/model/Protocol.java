@@ -42,6 +42,15 @@ public class Protocol {
     @JsonProperty("level")
     private String level;
 
+    /** Текст, по которому имеет смысл искать — всё, кроме служебных полей. */
+    public String searchableText() {
+        return String.join(" ",
+                safe(name), safe(diagRequired), safe(diagExtra),
+                safe(treatment), safe(notes), safe(duration));
+    }
+
+    private static String safe(String s) { return s == null ? "" : s; }
+
     public String getNum() { return num; }
     public String getName() { return name; }
     public String getPopulation() { return population; }

@@ -83,7 +83,7 @@ public class ProtocolDetailsPane extends ScrollPane {
         addMetaBlock(p);
         addSection("Обязательная диагностика", p.getDiagRequired(), "section-diag");
         addSection("Дополнительная диагностика", p.getDiagExtra(), "section-diag-extra");
-        addHiddenSection("Лечение", "section-treatment");
+        addCollapsibleTreatment(p.getTreatment());
         addSection("Примечания", p.getNotes(), "section-notes");
         addSection("Длительность", p.getDuration(), "section-duration");
         addSourceBlock(p);
@@ -152,26 +152,44 @@ public class ProtocolDetailsPane extends ScrollPane {
     /**
      * Секция с заголовком, но без содержимого.
      */
-    private void addHiddenSection(String header, String styleClass) {
-        Label headerLabel = new Label(header);
+    /**
+     * Секция «Лечение» — свёрнута по умолчанию, разворачивается по кнопке.
+     * Причина: длинный текст протокола (десятки строк) перегружает экран.
+     */
+    private void addCollapsibleTreatment(String value) {
+        if (!notEmpty(value)) return;
+
+        Label headerLabel = new Label("Лечение");
         headerLabel.getStyleClass().add("section-header");
         headerLabel.setMinHeight(Region.USE_PREF_SIZE);
+
+        Button toggleBtn = new Button("Показать");
+        toggleBtn.getStyleClass().add("copy-button");
+        toggleBtn.setFocusTraversable(false);
+
+        Button copyBtn = createCopyButton(value);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox headerRow = new HBox(8, headerLabel, spacer);
+        HBox headerRow = new HBox(8, headerLabel, spacer, copyBtn, toggleBtn);
         headerRow.setAlignment(Pos.CENTER_LEFT);
         headerRow.setMinHeight(Region.USE_PREF_SIZE);
 
-        Label placeholder = new Label("Содержимое скрыто");
-        placeholder.getStyleClass().add("section-hidden-placeholder");
-        placeholder.setMaxWidth(Double.MAX_VALUE);
+        VBox body = buildBody(value);
+        body.setVisible(false);
+        body.setManaged(false);
 
-        VBox box = new VBox(8, headerRow, placeholder);
-        box.getStyleClass().addAll("section-card", "section-hidden", styleClass);
+        toggleBtn.setOnAction(e -> {
+            boolean show = !body.isVisible();
+            body.setVisible(show);
+            body.setManaged(show);
+            toggleBtn.setText(show ? "Свернуть" : "Показать");
+        });
+
+        VBox box = new VBox(8, headerRow, body);
+        box.getStyleClass().addAll("section-card", "section-treatment");
         box.setMaxWidth(Double.MAX_VALUE);
-        box.setMinHeight(Region.USE_PREF_SIZE);
         box.setFillWidth(true);
         sections.getChildren().add(box);
     }

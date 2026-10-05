@@ -2,6 +2,7 @@ package com.okunev.lor.ui;
 
 import com.okunev.lor.AppVersion;
 import com.okunev.lor.model.Protocol;
+import com.okunev.lor.service.PreferencesService;
 import com.okunev.lor.service.ProtocolService;
 import com.okunev.lor.service.SuggestionService;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,6 +15,7 @@ import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 
 import java.util.List;
@@ -38,7 +40,8 @@ public class MainView extends BorderPane {
     private final ContextMenu suggestionsPopup = new ContextMenu();
     private Set<String> allSuggestions;
 
-    private boolean darkMode = false;
+    private final PreferencesService prefs = new PreferencesService();
+    private boolean darkMode;
 
     public MainView() {
         ProtocolService service = new ProtocolService();
@@ -54,7 +57,21 @@ public class MainView extends BorderPane {
 
         setTop(createHeader());
         setCenter(createBody());
+
+        darkMode = prefs.isDark();
+        themeToggle.setText(darkMode ? "☀ Светлая" : "🌙 Тёмная");
+
+        // Применяем сохранённую тему, как только корневой узел попадёт в Scene
+        sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                if (darkMode) ThemeManager.applyDarkTheme(newScene);
+                else          ThemeManager.applyLightTheme(newScene);
+            }
+        });
+
         getStyleClass().add("root-pane");
+
+        installShortcuts();
     }
 
     // ================== HEADER ==================
@@ -201,7 +218,10 @@ public class MainView extends BorderPane {
             if (!focused) suggestionsPopup.hide();
         });
 
-        searchField.setOnKeyPressed(e -> {
+        // Обработка клавиш внутри поля поиска.
+        // Используем addEventHandler, чтобы не конфликтовать с другими
+        // обработчиками (например, Ctrl+E из installShortcuts()).
+        searchField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.DOWN) {
                 if (!suggestionsPopup.isShowing() && !searchField.getText().isBlank()) {
                     showSuggestions(searchField.getText());
@@ -213,6 +233,7 @@ public class MainView extends BorderPane {
             } else if (e.getCode() == KeyCode.ESCAPE) {
                 suggestionsPopup.hide();
                 searchField.clear();
+                e.consume();
             }
         });
     }
@@ -248,29 +269,32 @@ public class MainView extends BorderPane {
     }
 
     private void applyFilters() {
-        String search = searchField.getText() == null ? "" : searchField.getText().toLowerCase().trim();
+        String rawSearch = searchField.getText() == null ? "" : searchField.getText().trim();
         String population = populationFilter.getValue();
         String section = sectionFilter.getValue();
 
+        // Разбиваем запрос на слова — каждое слово должно присутствовать
+        String[] terms = rawSearch.isEmpty()
+                ? new String[0]
+                : rawSearch.toLowerCase().split("\\s+");
+
         filteredProtocols.setPredicate(p -> {
-            if (!search.isEmpty()) {
-                boolean match = contains(p.getName(), search)
-                        || contains(p.getDiagRequired(), search)
-                        || contains(p.getDiagExtra(), search);
-                if (!match) return false;
+            if (terms.length > 0) {
+                String haystack = p.searchableText().toLowerCase();
+                for (String term : terms) {
+                    if (!haystack.contains(term)) return false;
+                }
             }
-            if (population != null && !"Все".equals(population) && !population.equals(p.getPopulation())) {
+            if (population != null && !"Все".equals(population)
+                    && !population.equals(p.getPopulation())) {
                 return false;
             }
-            if (section != null && !"Все".equals(section) && !section.equals(p.getSection())) {
+            if (section != null && !"Все".equals(section)
+                    && !section.equals(p.getSection())) {
                 return false;
             }
             return true;
         });
-    }
-
-    private boolean contains(String src, String q) {
-        return src != null && src.toLowerCase().contains(q);
     }
 
     private void updateCountLabel() {
@@ -361,5 +385,53 @@ public class MainView extends BorderPane {
             ThemeManager.applyLightTheme(scene);
             themeToggle.setText("🌙 Тёмная");
         }
+        prefs.setDark(darkMode);
+    }
+
+    // ================== SHORTCUTS ==================
+
+    /**
+     * Глобальные горячие клавиши.
+     * <p>
+     * Используем {@code isShortcutDown()} вместо {@code isControlDown()} —
+     * это работает кроссплатформенно: Ctrl на Windows/Linux, ⌘ на macOS.
+     * <p>
+     * Для обработки клавиш внутри {@link TextField} применяем
+     * {@code addEventHandler}, а не {@code setOnKeyPressed}, иначе мы
+     * затрём обработчик из {@link #setupFilters()}.
+     */
+    private void installShortcuts() {
+        // Ctrl/Cmd + F → фокус в поиск
+        addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.isShortcutDown() && e.getCode() == KeyCode.F) {
+                searchField.requestFocus();
+                searchField.selectAll();
+                e.consume();
+            }
+        });
+
+        // Ctrl/Cmd + D → переключить тему
+        addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.isShortcutDown() && e.getCode() == KeyCode.D) {
+                toggleTheme();
+                e.consume();
+            }
+        });
+
+        // Ctrl/Cmd + E → очистить поле поиска
+        searchField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.isShortcutDown() && e.getCode() == KeyCode.E) {
+                searchField.clear();
+                e.consume();
+            }
+        });
+
+        // Esc в таблице → снять выделение
+        table.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                table.getSelectionModel().clearSelection();
+                e.consume();
+            }
+        });
     }
 }
